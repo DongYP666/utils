@@ -508,3 +508,5 @@ Cell[] getRow(int row) 获取某一行的所有单元格，返回的是单元格
 Cell getCell(int column, int row)获取指定单元格的对象引用，需要注意的是它的两个参数，第一个是列数，第二个是行数，这与通常的行、列组合有些不同
 WritableSheet.setRowView(int i,int height); 指定第i+1行的高度
 WritableSheet.setColumnView(int i,int width); 指定第i+1列的宽度
+
+//2.6.12有个bug啊 在copySheet和importSheet时 & -> &&

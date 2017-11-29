@@ -159,7 +159,7 @@ public class Test {
             sheetVo.setSheetName("固定资产导出测试表(" + i + ")");
 
             List<ExcelHeaderVo> excelHeaderVos = new ArrayList<ExcelHeaderVo>();
-            //sheetVo.setExcelHeaderVos(excelHeaderVos);
+            sheetVo.setExcelHeaderVos(excelHeaderVos);
 
             ExcelContentVo excelContentVo = new ExcelContentVo();
             List<List<String>> lists = generate();
