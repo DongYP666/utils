@@ -1,0 +1,510 @@
+2 Jxl开发指南
+2.1 介绍
+jxl操作excel包括对象Workbook，Sheet ，Cell。
+一个excel就对应一个Workbook对象，
+一个Workbook可以有多个Sheet对象
+一个Sheet对象可以有多个Cell对象
+
+2.2 读取excel操作
+通过Workbook，Sheet ，Cell这三个对象我们就可以实现Excel文件的读取工作。我们先想想一下读取步骤，不管是什么样的Excel操作框架必定都要经历
+1、 选取Excel文件得到工作薄
+2、 选择工作表
+3、 选择Cell
+4、 读取信息
+
+2.2.1 读取工作薄
+选取Excel文件得到工作薄Workbook
+Workbook workbook = Workbook.getWorkbook(new File("myfile.xls"));
+
+2.2.2 读取工作表
+通过Workbook的getSheet方法选择第一个工作表（从0开始）
+Sheet sheet = workbook.getSheet(0);
+也可以通过工作的名称来得到Sheet
+
+2.2.3 读取单元格
+通过Sheet的getCell方法选择位置为C2的单元格（两个参数都从0开始）
+Cell c2 = sheet.getCell(2,1);
+
+2.2.3.1 读取单元格的值
+2.2.3.2 通过Cell的getContents方法
+把单元格中的信息以字符的形式读取出来String stringc2 = c2.getContents();
+
+2.2.3.3 Cell提供了一个getType方法
+能够返回单元格的类型信息，同时JXL提供了一个CellType类用来预设Excel中的类型信息，而且JXL提供了一些Cell类的子类用来分别用来表示各种类型的单元格，如LabelCell，NumberCell，DateCell分别表示字符、数值、日期类型的单元格
+if (c2.getType() == CellType. LABEL)
+{
+LabelCell nc = (LabelCell) c2;
+String number b2 = nc. getString();
+}
+if (c2.getType() == CellType. DATE)
+{
+DateCell nc = (DateCell) c2;
+Date number b2 = nc. getDate();
+}
+
+if (c2.getType() == CellType.NUMBER)
+{
+NumberCell nc = (NumberCell) c2;
+double number b2 = nc.getValue();
+}
+API提供了以下基本类型，与Excel的数据格式相对应，如下图所示
+
+2.2.4 以释放资源：workbook.close()
+当你完成对Excel电子表格数据的处理后，一定要使用close()方法来关闭先前创建的对象，以释放读取数据表的过程中所占用的内存空间，在读取大量数据时显得尤为重要
+最后不要忘记关闭workbook以释放资源：workbook.close();
+
+2.3 写excel操作
+通过WritableWorkbook，WritableSheet，Label这三个对象我们就可以实现Excel文件的插入工作。我们先想想一下插入，不管是什么样的Excel操作框架必定都要经历
+1、 创建Exce工作薄
+2、 创建工作表
+3、 创建单元格
+
+2.3.1 创建工作薄
+API提供了两种方式来处理可写入的输出流，一种是直接生成本地文件，如果文件名不带全路径的话，缺省的文件会定位在当前目录，如果文件名带有全路径的话，则生成的Excel文件则会定位在相应的目录；另外一种是将Excel对象直接写入到输出流，例如：用户通过浏览器来访问web服务器，如果HTTP头设置正确的话，浏览器自动调用客户端的Excel应用程序，来显示动态生成的Excel电子表格。
+2.3.1.1 创建可写入的Excel工作薄
+WritableWorkbook
+wwb = Workbook.createWorkbook(new File(targetfile));
+
+2.3.1.2 将WritableWorkbook直接写入到输出流
+OutputStream os = new FileOutputStream(targetfile);
+WritableWorkbook wwb = Workbook.createWorkbook(os);
+
+2.3.2 创建工作表
+WritableSheet ws = wwb.createSheet("通讯录", 0);//创建sheet
+
+2.3.3 创建单元格
+2.3.3.1 添加文本类单元格
+Label labelC = new Label(0, 0, "This is a Label cell");
+
+2.3.3.2 添加带有字型Formatting的对象
+WritableFont wf = new WritableFont(WritableFont.TIMES, 18, WritableFont.BOLD, true);
+WritableCellFormat wcfF = new WritableCellFormat(wf);
+labelCF = new Label(1, 0, "This is a Label Cell", wcfF);
+ws.addCell(labelCF);
+
+2.3.3.3 添加带有字体颜色Formatting的对象
+WritableFont wfc = new WritableFont(WritableFont.ARIAL,10,WritableFont.NO_BOLD, false,
+UnderlineStyle.NO_UNDERLINE, jxl.format.Colour.RED);
+WritableCellFormat wcfFC = new WritableCellFormat(wfc);
+Label labelCFC = new Label(1, 0, "This is a Label Cell", wcfFC);
+ws.addCell(labelCF);
+
+2.3.3.4 添加Number对象
+Number labelN = new jxl.write.Number(0, 1, 3.1415926);
+ws.addCell(labelN);
+
+2.3.3.5 添加带有formatting的Number对象
+NumberFormat nf = new NumberFormat("#.##");
+WritableCellFormat wcfN = new WritableCellFormat(nf);
+Number labelNF = new Number(1, 1, 3.1415926, wcfN);
+ws.addCell(labelNF);
+
+2.3.3.6 添加Boolean对象
+Boolean labelB = new jxl.write.Boolean(0, 2, false);
+ws.addCell(labelB);
+
+2.3.3.7 添加DateTime对象
+DateTime labelDT = new DateTime(0, 3, new java.util.Date());
+ws.addCell(labelDT);
+
+2.3.3.8 添加带有formatting的DateFormat对象
+DateFormat df = new DateFormat("dd MM yyyy hh:mm:ss");
+WritableCellFormat wcfDF = new WritableCellFormat(df);
+DateTime labelDTF = new DateTime(1, 3, new Date(), wcfDF);
+ws.addCell(labelDTF);
+
+2.3.3.9 添加公式单元格
+Fornual formual = new Formual(0,11,”Sum(A1:A9)”);
+wrb.addCell(formual);
+
+2.3.3.10 添加图像
+WritableImage wrimage=new WritableImage(1,5,10,10,new File(imageFilepath));
+wrb.addImage(wrimage);
+注意，API中注明只支持png文件。
+
+2.3.4 合并单元格
+通过writablesheet.mergeCells(int x,int y,int m,int n);来实现的。
+表示将从第x+1列，y+1行到m+1列，n+1行合并 (四个点定义了两个坐标，左上角和右下角)结果是合并了m-x+1行，n-y+1列，两者乘积就是合并的单元格数量。
+sheet.mergeCells(0, 6, 3, 8);
+label = new Label(0, 6, "合并了12个单元格");
+sheet.addCell(label);
+
+2.3.5 添加单元格样式
+主要是改变单元格背景、字体、颜色等等。
+WritableCellFormat wc = new WritableCellFormat();
+wc.setAlignment(Alignment.CENTRE); // 设置居中
+wc.setBorder(Border.ALL, BorderLineStyle.THIN); // 设置边框线
+wc.setBackground(jxl.format.Colour.RED); // 设置单元格的背景颜色
+label = new Label(1, 5, "字体", wc);
+sheet.addCell(label);
+2.3.6 设置单元格字体
+WritableFont wfont =
+new WritableFont(WritableFont.createFont("楷书"), 20);
+WritableCellFormat font = new WritableCellFormat(wfont);
+label = new Label(2, 6, "楷书", font);
+sheet.addCell(label);
+2.3.7 写入到文件
+wwb.write();// 写入数据
+wwb.close();// 关闭文件
+
+2.4 拷贝、更新Excel工作薄
+//创建只读的Excel工作薄的对象
+jxl.Workbook rw = jxl.Workbook.getWorkbook(new File(sourcefile));
+//创建可写入的Excel工作薄对象
+WritableWorkbook wwb=Workbook.createWorkbook(new File(targetfile), rw);
+//读取第一张工作表
+jxl.write.WritableSheet ws = wwb.getSheet(0);
+//获得第一个单元格对象
+jxl.write.WritableCell wc = ws.getWritableCell(0, 0);
+//判断单元格的类型, 做出相应的转化
+if(wc.getType() == CellType.LABEL)
+{
+Label l = (Label)wc;
+l.setString("The value has been modified.");
+}
+//写入Excel对象
+wwb.write();
+//关闭可写入的Excel对象
+wwb.close();
+//关闭只读的Excel对象
+rw.close();
+为了提高性能，在读取工作表时，与数据相关的一些输出信息，所有的格式信息，如：字体、颜色等等，是不被处理的，因为我们的目的是获得行数据的值，既使没有了修饰，也不会对行数据的值产生什么影响。唯一的不利之处就是，在内存中会同时保存两个同样的工作表，这样当工作表体积比较大时，会占用相当大的内存，但现在好像内存的大小并不是什么关键因素了。
+一旦获得了可写入的工作表对象，我们就可以对单元格对象进行更新的操作了，在这里我们不必调用API提供的add()方法，因为单元格已经于工作表当中，所以我们只需要调用相应的setXXX()方法，就可以完成更新的操作了。
+尽单元格原有的格式化修饰是不能去掉的，我们还是可以将新的单元格修饰加上去，以使单元格的内容以不同的形式表现。
+新生成的工作表对象是可写入的，我们除了更新原有的单元格外，还可以添加新的单元格到工作表中。
+最后，不要忘记调用write()方法，将更新的内容写入到文件中，然后关闭工作薄对象，这里有两个工作薄对象要关闭，一个是只读的，另外一个是可写入的。
+
+3 JXL读写excel文件的例子 (来自网络)
+3.1 实例一
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import jxl.*;
+import jxl.format.Alignment;
+import jxl.format.Border;
+import jxl.format.BorderLineStyle;
+import jxl.format.CellFormat;
+import jxl.write.Boolean;
+import jxl.write.Label;
+import jxl.write.Number;
+import jxl.write.WritableCellFormat;
+import jxl.write.WritableFont;
+import jxl.write.WritableSheet;
+import jxl.write.WritableWorkbook;
+public class JXLExample {
+
+/**
+*
+* @author smart *
+*/
+public static void main(String[] args) {
+// 准备设置excel工作表的标题
+String[] title = {"编号","产品名称","产品价格","产品数量","生产日期","产地","是否出口"};
+try {
+// 获得开始时间
+long start = System.currentTimeMillis();
+// 输出的excel的路径
+String filePath = "c:\\test.xls";
+// 创建Excel工作薄
+WritableWorkbook wwb;
+// 新建立一个jxl文件,即在C盘下生成test.xls
+OutputStream os = new FileOutputStream(filePath);
+wwb=Workbook.createWorkbook(os);
+// 添加第一个工作表并设置第一个Sheet的名字
+WritableSheet sheet = wwb.createSheet("产品清单", 0);
+Label label;
+for(int i=0;i<title.length;i++){
+label = new Label(i,0,title[i]);
+// 将定义好的单元格添加到工作表中
+sheet.addCell(label);
+}
+/*
+* 保存数字到单元格，需要使用jxl.write.Number
+* 必须使用其完整路径，否则会出现错误
+* */
+// 填充产品编号
+jxl.write.Number number = new jxl.write.Number(0,1,20071001);
+sheet.addCell(number);
+// 填充产品名称
+label = new Label(1,1,"金鸽瓜子");
+sheet.addCell(label);
+/*
+* 定义对于显示金额的公共格式
+* jxl会自动实现四舍五入
+* 例如 2.456会被格式化为2.46,2.454会被格式化为2.45
+* */
+jxl.write.NumberFormat nf = new jxl.write.NumberFormat("#.##");
+jxl.write.WritableCellFormat wcf = new jxl.write.WritableCellFormat(nf);
+// 填充产品价格
+jxl.write.Number nb = new jxl.write.Number(2,1,2.45,wcf);
+sheet.addCell(nb);
+// 填充产品数量
+jxl.write.Number numb = new jxl.write.Number(3,1,200);
+sheet.addCell(numb);
+/*
+* 定义显示日期的公共格式
+* 如:yyyy-MM-dd hh:mm
+* */
+SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+String newdate = sdf.format(new Date());
+// 填充出产日期
+label = new Label(4,1,newdate);
+sheet.addCell(label);
+// 填充产地
+label = new Label(5,1,"陕西西安");
+sheet.addCell(label);
+/*
+* 显示布尔值
+* */
+jxl.write.Boolean bool = new jxl.write.Boolean(6,1,true);
+sheet.addCell(bool);
+/*
+* 合并单元格
+* 通过writablesheet.mergeCells(int x,int y,int m,int n);来实现的
+* 表示将从第x+1列，y+1行到m+1列，n+1行合并
+*
+* */
+sheet.mergeCells(0,3,2,3);
+label = new Label(0,3,"合并了三个单元格");
+sheet.addCell(label);
+/*
+*
+* 定义公共字体格式
+* 通过获取一个字体的样式来作为模板
+* 首先通过web.getSheet(0)获得第一个sheet
+* 然后取得第一个sheet的第二列，第一行也就是"产品名称"的字体
+* */
+CellFormat cf = wwb.getSheet(0).getCell(1, 0).getCellFormat();
+WritableCellFormat wc = new WritableCellFormat();
+// 设置居中
+wc.setAlignment(Alignment.CENTRE);
+// 设置边框线
+wc.setBorder(Border.ALL, BorderLineStyle.THIN);
+// 设置单元格的背景颜色
+wc.setBackground(jxl.format.Colour.RED);
+label = new Label(1,5,"字体",wc);
+sheet.addCell(label);
+// 设置字体
+WritableFont wfont=new WritableFont(WritableFont.createFont("隶书"),20);
+WritableCellFormat font = new WritableCellFormat(wfont);
+label = new Label(2,6,"隶书",font);
+sheet.addCell(label);
+// 写入数据
+wwb.write();
+// 关闭文件
+wwb.close();
+long end = System.currentTimeMillis();
+System.out.println("----完成该操作共用的时间是:"+(end-start)/1000);
+} catch (Exception e) {
+System.out.println("---出现异常---");
+e.printStackTrace();
+}
+}
+
+}
+3.2 实例二
+
+package com.test;
+import java.io.File;
+import java.io.IOException;
+import jxl.Cell;
+import jxl.Sheet;
+import jxl.Workbook;
+import jxl.format.Border;
+import jxl.format.BorderLineStyle;
+import jxl.format.Colour;
+import jxl.read.biff.BiffException;
+import jxl.write.Label;
+import jxl.write.WritableCellFormat;
+import jxl.write.WritableFont;
+import jxl.write.WritableSheet;
+import jxl.write.WritableWorkbook;
+import jxl.write.WriteException;
+import jxl.write.biff.RowsExceededException;
+
+public class JexcelSample {
+/**
+* 写excel文件
+*
+*/
+public void writeExc(File filename){
+WritableWorkbook wwb = null;
+try
+{
+wwb = Workbook.createWorkbook(filename);
+}
+catch (Exception e){
+e.printStackTrace();
+}
+
+//创建Excel工作表
+WritableSheet ws = wwb.createSheet("通讯录", 0);//创建sheet
+try {
+ws.mergeCells(0, 0, 2, 1);//合并单元格(左列，左行，右列，右行)从第1行第1列到第2行第3列
+Label header = new Label(0, 0, "通讯录(191026班)", getHeader());
+ws.addCell(header);//写入头
+Label l = new Label(0, 2, "姓名", getTitle());//第3行
+ws.addCell(l);
+l = new Label(1, 2, "电话", getTitle());
+ws.addCell(l);
+l = new Label(2, 2, "地址", getTitle());
+ws.addCell(l);
+l = new Label(0, 3, "小祝", getNormolCell());//第4行
+ws.addCell(l);
+l = new Label(1, 3, "1314***0974", getNormolCell());
+ws.addCell(l);
+l = new Label(2, 3, "武汉武昌", getNormolCell());
+ws.addCell(l);
+l = new Label(0, 4, "小施", getNormolCell());//第5行
+ws.addCell(l);
+l = new Label(1, 4, "1347***5057", getNormolCell());
+ws.addCell(l);
+l = new Label(2, 4, "武汉武昌", getNormolCell());
+ws.addCell(l);
+ws.setColumnView(0,20);//设置列宽
+ws.setColumnView(1,20);
+ws.setColumnView(2,40);
+ws.setRowView(0,400);//设置行高
+ws.setRowView(1,400);
+ws.setRowView(2,500);
+ws.setRowView(3,500);
+ws.setRowView(4,500);
+} catch (RowsExceededException e1) {
+e1.printStackTrace();
+} catch (WriteException e1) {
+e1.printStackTrace();
+}
+
+//输出流
+try {
+wwb.write();
+} catch (IOException ex) {
+// TODO 自动生成 catch 块
+ex.printStackTrace();
+}
+//关闭流
+try {
+wwb.close();
+} catch (WriteException ex) {
+// TODO 自动生成 catch 块
+ex.printStackTrace();
+} catch (IOException ex) {
+// TODO 自动生成 catch 块
+ex.printStackTrace();
+}
+//outStream.close();
+System.out.println("写入成功！\n");
+}
+
+public void readExc(File filename) throws BiffException, IOException{
+Workbook wb = Workbook.getWorkbook(filename);
+Sheet s = wb.getSheet(0);//第1个sheet
+Cell c = null;
+int row = s.getRows();//总行数
+int col = s.getColumns();//总列数
+for(int i=0;i<row;i++){
+for(int j=0;j<col;j++){
+c = s.getCell(j,i);
+System.out.print(c.getContents()+" ");
+}
+System.out.println();
+}
+}
+
+/**
+* 设置头的样式
+* @return
+*/
+public static WritableCellFormat getHeader(){
+WritableFont font = new WritableFont(WritableFont.TIMES, 24 ,WritableFont.BOLD);//定义字体
+try {
+font.setColour(Colour.BLUE);//蓝色字体
+} catch (WriteException e1) {
+// TODO 自动生成 catch 块
+e1.printStackTrace();
+}
+WritableCellFormat format = new WritableCellFormat(font);
+try {
+format.setAlignment(jxl.format.Alignment.CENTRE);//左右居中
+format.setVerticalAlignment(jxl.format.VerticalAlignment.CENTRE);//上下居中
+format.setBorder(Border.ALL,BorderLineStyle.THIN,Colour.BLACK);//黑色边框
+format.setBackground(Colour.YELLOW);//黄色背景
+} catch (WriteException e) {
+// TODO 自动生成 catch 块
+e.printStackTrace();
+}
+return format;
+}
+
+/**
+* 设置标题样式
+* @return
+*/
+public static WritableCellFormat getTitle(){
+WritableFont font = new WritableFont(WritableFont.TIMES, 14);
+try {
+font.setColour(Colour.BLUE);//蓝色字体
+} catch (WriteException e1) {
+// TODO 自动生成 catch 块
+e1.printStackTrace();
+}
+WritableCellFormat format = new WritableCellFormat(font);
+
+try {
+format.setAlignment(jxl.format.Alignment.CENTRE);
+format.setVerticalAlignment(jxl.format.VerticalAlignment.CENTRE);
+format.setBorder(Border.ALL,BorderLineStyle.THIN,Colour.BLACK);
+} catch (WriteException e) {
+// TODO 自动生成 catch 块
+e.printStackTrace();
+}
+return format;
+}
+
+/**
+* 设置其他单元格样式
+* @return
+*/
+public static WritableCellFormat getNormolCell(){//12号字体,上下左右居中,带黑色边框
+WritableFont font = new WritableFont(WritableFont.TIMES, 12);
+WritableCellFormat format = new WritableCellFormat(font);
+try {
+format.setAlignment(jxl.format.Alignment.CENTRE);
+format.setVerticalAlignment(jxl.format.VerticalAlignment.CENTRE);
+format.setBorder(Border.ALL,BorderLineStyle.THIN,Colour.BLACK);
+} catch (WriteException e) {
+// TODO 自动生成 catch 块
+e.printStackTrace();
+}
+return format;
+}
+
+public static void main(String[] args) throws IOException, BiffException{
+JexcelSample js = new JexcelSample();
+File f = new File("D:\\address.xls");
+f.createNewFile();
+js.writeExc(f);
+js.readExc(f);
+}
+}
+生成的excel表格如下：
+
+
+4 jxl常用api
+4.1.1 1、Workbook类提供的方法
+int getNumberOfSheets() 获取工作表的总个数
+Sheet[] getSheets() 获取数组型的工作表
+Sheet getSheet(String name);//得到此对应名称的工作表
+4.1.2 2、Sheet接口提供的方法
+String getName() 获取工作表的名称
+int getColumns() 获取Sheet表中所包含的总列数
+Cell[] getColumn(int column) 获取某一列的所有单元格，
+返回的是单元格对象数组
+int getRows() 获取Sheet表中所包含的总行数
+Cell[] getRow(int row) 获取某一行的所有单元格，返回的是单元格对象数组
+Cell getCell(int column, int row)获取指定单元格的对象引用，需要注意的是它的两个参数，第一个是列数，第二个是行数，这与通常的行、列组合有些不同
+WritableSheet.setRowView(int i,int height); 指定第i+1行的高度
+WritableSheet.setColumnView(int i,int width); 指定第i+1列的宽度
