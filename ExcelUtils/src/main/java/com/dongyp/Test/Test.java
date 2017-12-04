@@ -1,13 +1,15 @@
-package com.dongyp.jxl;
+package com.dongyp.Test;
 
-import com.dongyp.jxl.excelExport.ExcelWriter;
-import com.dongyp.jxl.excelImport.ExcelReader;
-import com.dongyp.jxl.excelReplace.ExcelReplace;
+import com.dongyp.jxl.excelExport.ExcelJxlWriter;
+import com.dongyp.jxl.excelImport.ExcelJxlReader;
+import com.dongyp.jxl.excelReplace.ExcelJxlReplace;
+import com.dongyp.poi.excelExport.ExcelPoiWriter;
+import com.dongyp.poi.excelImport.ExcelPoiReader;
+import com.dongyp.poi.excelReplace.ExcelPoiReplace;
 import com.dongyp.vo.Asset;
 import com.dongyp.vo.ExcelContentVo;
 import com.dongyp.vo.ExcelHeaderVo;
 import com.dongyp.vo.ExcelSheetVo;
-import jxl.read.biff.BiffException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.DateUtil;
 
@@ -30,16 +32,26 @@ import java.util.List;
 public class Test {
     public static void main(String[] args) {
         Test test = new Test();
-        //test.testReader();
-        //test.testWriter();
-        test.testReplace();
+//        test.testReader("jxl");
+//        test.testWriter("jxl");
+//        test.testReplace("jxl");
+//        test.testReader("poi");
+//        test.testWriter("poi");
+        test.testReplace("poi");
     }
 
-    private void testReader() {
+    private void testReader(String type) {
         InputStream in = this.getClass().getResourceAsStream("/固定资产导入模板.xls");
-        List<ExcelSheetVo> sheetVos = ExcelReader.Reader(in,2,0);
-        ExcelSheetVo sheetVo = sheetVos.get(0);
+        List<ExcelSheetVo> sheetVos = new ArrayList<ExcelSheetVo>();
+        if(type.equals("jxl")) {
+            sheetVos = ExcelJxlReader.reader(in, 2, 0);
+        } else if(type.equals("poi")) {
+            sheetVos = ExcelPoiReader.reader(in, 2, 0);
+        } else {
+            throw new RuntimeException("没有此类型");
+        }
 
+        ExcelSheetVo sheetVo = sheetVos.get(0);
         List<Asset> assetList = new ArrayList<Asset>();
         for(List<String> values : sheetVo.getExcelContentVo().getValues()){
             Asset asset = new Asset();
@@ -84,10 +96,10 @@ public class Test {
         }
     }
 
-    private void testWriter() {
+    private void testWriter(String type) {
         List<ExcelSheetVo> sheetVos = new ArrayList<ExcelSheetVo>();
         ExcelSheetVo sheetVo = new ExcelSheetVo();
-        sheetVo.setSheetName("固定资产导出测试表");
+        sheetVo.setSheetName(type+"固定资产导出测试表");
 
         List<ExcelHeaderVo> excelHeaderVos = new ArrayList<ExcelHeaderVo>();
         excelHeaderVos.add(new ExcelHeaderVo(0,0,"序号"));
@@ -105,10 +117,8 @@ public class Test {
         excelHeaderVos.add(new ExcelHeaderVo(0,12,"备注"));
         sheetVo.setExcelHeaderVos(excelHeaderVos);
 
-        ExcelContentVo excelContentVo = new ExcelContentVo();
         List<List<String>> lists = generate();
-        excelContentVo.setStartRow(1);
-        excelContentVo.setStartColumn(0);
+        ExcelContentVo excelContentVo = new ExcelContentVo(1,0);
         excelContentVo.setValues(lists);
         sheetVo.setExcelContentVo(excelContentVo);
         sheetVos.add(sheetVo);
@@ -116,7 +126,13 @@ public class Test {
         FileOutputStream fileOutputStream = null;
         try {
             fileOutputStream = new FileOutputStream("固定资产导出数据.xls");
-            ExcelWriter.Writer(sheetVos, fileOutputStream);
+            if(type.equals("jxl")){
+                ExcelJxlWriter.writer(sheetVos, fileOutputStream);
+            } else if (type.equals("poi")) {
+                ExcelPoiWriter.writer(sheetVos, fileOutputStream);
+            } else {
+                throw new RuntimeException("没有此类型");
+            }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } finally {
@@ -152,19 +168,17 @@ public class Test {
         return lists;
     }
 
-    private void testReplace(){
+    private void testReplace(String type){
         List<ExcelSheetVo> sheetVos = new ArrayList<ExcelSheetVo>();
         for(int i = 0; i < 3; i++){
             ExcelSheetVo sheetVo = new ExcelSheetVo();
-            sheetVo.setSheetName("固定资产导出测试表(" + i + ")");
+            sheetVo.setSheetName(type + "固定资产导出测试表(" + i + ")");
 
             List<ExcelHeaderVo> excelHeaderVos = new ArrayList<ExcelHeaderVo>();
             sheetVo.setExcelHeaderVos(excelHeaderVos);
 
-            ExcelContentVo excelContentVo = new ExcelContentVo();
             List<List<String>> lists = generate();
-            excelContentVo.setStartRow(2);
-            excelContentVo.setStartColumn(0);
+            ExcelContentVo excelContentVo = new ExcelContentVo(2,0);
             excelContentVo.setValues(lists);
             sheetVo.setExcelContentVo(excelContentVo);
             sheetVos.add(sheetVo);
@@ -174,7 +188,14 @@ public class Test {
         FileOutputStream fileOutputStream = null;
         try {
             fileOutputStream = new FileOutputStream("固定资产导出数据.xls");
-            ExcelReplace.replace(sheetVos, in, fileOutputStream);
+
+            if(type.equals("jxl")){
+                ExcelJxlReplace.replace(sheetVos, in, fileOutputStream);
+            } else if (type.equals("poi")) {
+                ExcelPoiReplace.replace(sheetVos, in, fileOutputStream);
+            } else {
+                throw new RuntimeException("没有此类型");
+            }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } finally {

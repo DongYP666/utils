@@ -20,16 +20,16 @@ import java.util.List;
  * @Author by dongyp
  * @date on 2017/11/28
  */
-public class ExcelWriter {
-    public static void Writer(List<ExcelSheetVo> sheetVos, OutputStream out) {
+public class ExcelJxlWriter {
+    public static void writer(List<ExcelSheetVo> sheetVos, OutputStream out) {
+        if(sheetVos == null || out == null){
+            throw new RuntimeException("参数不能为空");
+        }
         WritableWorkbook workbook = null;
         try {
             workbook = Workbook.createWorkbook(out);
             for(int i = 0; i < sheetVos.size(); i++){
                 ExcelSheetVo sheetVo = sheetVos.get(i);
-                if(sheetVo.getExcelContentVo().getValues().size() == 0){
-                    throw new RuntimeException("导出数据为空");
-                }
 
                 WritableSheet sheet = workbook.createSheet(sheetVo.getSheetName(),i);
                 int contentRow = sheetVo.getExcelContentVo().getValues().size();
@@ -42,7 +42,7 @@ public class ExcelWriter {
                 //导出数据
                 for (int row = 0; row < contentRow; row++){
                     for (int column = 0; column < totalColumn; column++){
-                        Label label = new Label(column,row + sheetVo.getExcelContentVo().getStartRow(),sheetVo.getExcelContentVo().getValues().get(row).get(column));
+                        Label label = new Label(column,row + sheetVo.getExcelContentVo().getStartRow(), sheetVo.getExcelContentVo().getValues().get(row).get(column));
                         sheet.addCell(label);
                     }
                 }

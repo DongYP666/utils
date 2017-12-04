@@ -17,6 +17,11 @@ public class ExcelContentVo {
 
     private List<List<String>> values;
 
+    public ExcelContentVo(int startRow, int startColumn) {
+        this.startRow = startRow;
+        this.startColumn = startColumn;
+    }
+
     public int getStartRow() {
         return startRow;
     }

@@ -2,7 +2,6 @@ package com.dongyp.jxl.excelReplace;
 
 import com.dongyp.vo.ExcelHeaderVo;
 import com.dongyp.vo.ExcelSheetVo;
-import jxl.Sheet;
 import jxl.Workbook;
 import jxl.WorkbookSettings;
 import jxl.read.biff.BiffException;
@@ -25,7 +24,7 @@ import java.util.List;
  * @Author by dongyp
  * @date on 2017/11/29
  */
-public class ExcelReplace {
+public class ExcelJxlReplace {
     public static void replace(List<ExcelSheetVo> sheetVos, InputStream in, OutputStream out){
         Workbook workbook = null;
         WritableWorkbook writableWorkbook = null;

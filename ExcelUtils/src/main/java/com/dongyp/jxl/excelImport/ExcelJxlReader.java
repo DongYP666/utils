@@ -21,21 +21,19 @@ import java.util.List;
  * @Author by dongyp
  * @date on 2017/11/28
  */
-public class ExcelReader {
+public class ExcelJxlReader {
     /**
      *
-     * @param inputStream
+     * @param in
      * @param startRow        excel内容开始行数,从0开始算(标题行结束的下一行)
-     * @param startCloumn     excel内容开始列数,从0开始算
+     * @param startColumn     excel内容开始列数,从0开始算
      * @return
-     * @throws IOException
-     * @throws BiffException
      */
-    public static List<ExcelSheetVo> Reader(InputStream inputStream, int startRow, int startCloumn) {
+        public static List<ExcelSheetVo> reader(InputStream in, int startRow, int startColumn) {
         List<ExcelSheetVo> sheetVos = new ArrayList<ExcelSheetVo>();
         Workbook workbook = null;
         try {
-            workbook = Workbook.getWorkbook(inputStream);
+            workbook = Workbook.getWorkbook(in);
             Sheet[] sheets = workbook.getSheets();
 
             for (int i = 0; i < sheets.length; i++){
@@ -54,11 +52,9 @@ public class ExcelReader {
                 sheetVo.setExcelHeaderVos(excelHeaderVos);
 
                 // excel表格数据
-                ExcelContentVo contentVo = new ExcelContentVo();
-                contentVo.setStartRow(startRow);
-                contentVo.setStartColumn(startCloumn);
+                ExcelContentVo contentVo = new ExcelContentVo(startRow,startColumn);
                 List<List<String>> valueLists = new ArrayList<List<String>>();
-                for (int row = startRow; row < sheet.getColumns(); row++){
+                for (int row = startRow; row < sheet.getRows(); row++){
                     List<String> values = new ArrayList<String>();
                     for(int column = 0; column < sheet.getColumns(); column++){
                         Cell cell = sheet.getCell(column,row);
