@@ -1,13 +1,12 @@
 package com.dongyp.test;
 
+import com.dongyp.dateUtils.DateUtils;
+import com.dongyp.vo.YearWeekVo;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
-import org.joda.time.MonthDay;
-import org.joda.time.format.ISODateTimeFormat;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 
 /**
  * Copyright (C), 2014-2015, 深圳云集智造系统技术有限公司
@@ -69,5 +68,11 @@ public class Test {
 
         System.out.println(electionDate.toString(DATA_TIME_FORMAT));
         System.out.println();
+
+        DateTime testDateTime = new DateTime();
+        YearWeekVo yearWeekVo = DateUtils.getYeaWeek(testDateTime.toDate());
+        System.out.println(yearWeekVo.getClass().getName() + ", \n"
+                + sdf.format(yearWeekVo.getWeekBeginDate()) + " -- " + sdf.format(yearWeekVo.getWeekEndDate()) + " \n"
+                + yearWeekVo.getVal());
     }
 }
