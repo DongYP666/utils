@@ -6,10 +6,12 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="DateUtils" />
         <module name="ExcelUtils" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="DateUtils" target="1.5" />
       <module name="ExcelUtils" target="1.5" />
     </bytecodeTargetLevel>
   </component>

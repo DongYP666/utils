@@ -1,4 +1,4 @@
-package com.dongyp.Test;
+package com.dongyp.test;
 
 import com.dongyp.jxl.excelExport.ExcelJxlWriter;
 import com.dongyp.jxl.excelImport.ExcelJxlReader;
